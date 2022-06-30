@@ -35,4 +35,9 @@ check_icrnl
 printf "Proceeding with overwrite contents of ${LRED} ./.git/hooks/.pre-commit\n"
 confirm
 
+read -rp "which repo do you want to install to?  " hooks_path
+echo $hooks_path
 
+\curl -X GET https://raw.githubusercontent.com/nicbotes/pre-commit/main/pre-commit > $hooks_path
+
+echo "installed"
