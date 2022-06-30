@@ -16,4 +16,4 @@ run the installation script and follow the prompts
 ```
 
 For example:
-<img width="565" alt="image" src="https://user-images.githubusercontent.com/3964065/176630654-18210780-ba2a-426b-b66a-cc0b8596d50c.png">
+<img width="599" alt="image" src="https://user-images.githubusercontent.com/3964065/176638521-a6999c6f-c882-475d-a331-dc619a83a669.png">
