@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# Redirect output to stderr.
+exec 1>&2
+# enable user input
+exec < /dev/tty
+
+LRED='\033[1;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # NO COLOUR
+
+confirm () {  
+  printf "${YELLOW}"
+  read -rp "Continue with commit? (y/n) " yn
+  printf "${NC}"
+  if test "$yn" == "y" || test "$yn" == "Y"
+  then
+    printf "\n" # CONTINUE
+  else    
+    exit 1
+  fi
+}
+
+check_branch () {
+  if test "$(git branch --show-current)" == "master" || test "$(git branch --show-current)" == "main"
+  then
+    printf "You are on ${LRED}$(git branch --show-current)${NC}.\n"
+    confirm
+  fi
+}
+
+no_console () {
+  consoleRegexp='^[^-].*console.log'
+  filenameRegexp='^[^-].*console.log(\|^+++'
+
+  if test "$(git diff --cached | grep -c "$consoleRegexp")" != 0
+  then
+    git diff --cached | grep -ne "$filenameRegexp" | grep -B1 "$consoleRegexp"
+    printf "\nSome files include ${LRED}console.log${NC}.\n"
+    confirm
+  fi
+}
+
+no_pry_bindings () {
+  lookupRegexp='^[^-].*binding.pry'
+  filenameRegexp='^[^-].*binding.pry(\|^+++'
+
+  if test "$(git diff --cached | grep -c "$lookupRegexp")" != 0
+  then
+    git diff --cached | grep -ne "$filenameRegexp" | grep -B1 "$lookupRegexp"
+    printf "\nSome files include ${LRED}binding.pry${NC}.\n"
+    confirm
+  fi
+}
+
+no_active_jobs () {
+  lookupRegexp='^[^-].*BaseJob'
+  filenameRegexp='^[^-].*BaseJob(\|^+++'
+
+  if test "$(git diff --cached | grep -c "$lookupRegexp")" != 0
+  then
+    git diff --cached | grep -ne "$filenameRegexp" | grep -B1 "$lookupRegexp"
+    printf "\n[Deprecation warning] Some files include ${LRED}BaseJob${NC}.\n\t > Please follow the guidelines at\n\t > https://offerzen.slab.com/posts/approach-for-background-async-jobs-using-sidekiq-3dcjec7l#hl0b3-job-class\n"
+    confirm
+  fi
+}
+
+rubocop_offenses () {
+  git status | egrep 'modified.*\.rb' | awk '{print $2}' | xargs rubocop | tail -n 1
+}
+
+### RUN THROUGH CHECKS AND STOP IF THERE IS A PROBLEM
+rubocop_offenses
+check_branch
+no_console
+no_pry_bindings
+no_active_jobs
+
+printf "${GREEN}Proceeding with commit...${NC}\n"
+

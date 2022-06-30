@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Redirect output to stderr.
+exec 1>&2
+# enable user input
+exec < /dev/tty
+
+LRED='\033[1;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # NO COLOUR
+
+confirm () {  
+  printf "${YELLOW}"
+  read -rp "Continue with installation? (y/n) " yn
+  printf "${NC}"
+  if test "$yn" == "y" || test "$yn" == "Y"
+  then
+    printf "\n" # CONTINUE
+  else    
+    exit 1
+  fi
+}
+
+check_icrnl () { 
+  if test "$(stty -a | egrep '\-icrnl' | wc -l)" -eq 1
+  then
+    printf "For interactive usage, please execute the command ${LRED} stty icrnl.\ncrtl+c to exit\n\n"
+    confirm
+  fi
+}
+
+check_icrnl
+
+printf "Proceeding with overwrite contents of ${LRED} ./.git/hooks/.pre-commit\n"
+confirm
+
+
