@@ -25,19 +25,19 @@ confirm () {
 check_icrnl () { 
   if test "$(stty -a | egrep '\-icrnl' | wc -l)" -eq 1
   then
-    printf "For interactive usage, please execute the command ${LRED} stty icrnl.\ncrtl+c to exit\n\n"
-    confirm
+    printf "For interactive usage, please execute the command ${LRED} stty icrnl.\n"
+    exit 1
   fi
 }
 
 check_icrnl
 
-printf "Proceeding with overwrite contents of ${LRED} ./.git/hooks/.pre-commit\n"
+printf "Proceeding with overwrite contents of ${LRED} .git/hooks/.pre-commit\n"
 confirm
 
-read -rp "which repo do you want to install to?  " hooks_path
-echo $hooks_path
+read -rp "which repo do you want to install to?  " git_repo_dir
+echo "installing to: "$git_repo_dir"/.git/hooks/.pre-commit"
 
-\curl -X GET https://raw.githubusercontent.com/nicbotes/pre-commit/main/pre-commit > $hooks_path
+\curl -X GET https://raw.githubusercontent.com/nicbotes/pre-commit/main/pre-commit > $git_repo_dir"/.git/hooks/.pre-commit"
 
 echo "installed"
