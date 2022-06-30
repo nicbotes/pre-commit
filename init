@@ -32,7 +32,7 @@ check_icrnl () {
 
 check_icrnl
 
-printf "Proceeding with overwrite contents of ${LRED} .git/hooks/.pre-commit\n"
+printf "Proceeding will overwrite contents of your local git repo's ${LRED} .git/hooks/.pre-commit\n"
 confirm
 
 read -rp "which repo do you want to install to?  " git_repo_dir
